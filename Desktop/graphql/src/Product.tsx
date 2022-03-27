@@ -1,5 +1,4 @@
 // import React from "react";
-// import { useParams } from "react-router-dom";
 
 // const Product = ({ id, name, img }: any) => {
 //   return (
@@ -13,7 +12,6 @@
 // export default Product;
 
 import React from "react";
-import { useParams } from "react-router-dom";
 
 const Product = ({ id, name, img }: any) => {
   return (

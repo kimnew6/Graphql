@@ -12,7 +12,6 @@ const Routers = () => {
         <Route path="/" element={<App />} />
         <Route path="/product/" element={<ProductDetail />} />
         <Route path="/product/:code" element={<ProductDetail />} />
-        {/* <Route path="/product/*" element={<ProductDetail />} /> */}
       </Routes>
     </BrowserRouter>
   );
