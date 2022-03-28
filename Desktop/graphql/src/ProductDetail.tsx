@@ -2,65 +2,58 @@ import React from "react";
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 
-// const PRODUCT = gql`
-//   query {
-//     product {
-//       id
-//       name
-//       seoTitle
-//       images {
-//         url
-//       }
-//       variants {
-//         price {
-//           currency
-//         }
-//       }
-//     }
-//   }
-// `;
 const PRODUCT = gql`
-  query Query($code: ID!) {
-    country(code: $code) {
-      code
+  query ($id: ID!) {
+    product(id: $id) {
+      id
       name
-      phone
-      currency
+      publicationDate
+      images {
+        url
+      }
+      favoriteCount
     }
   }
 `;
-// const ProductDetail = () => {
-//   const { loading, error, data } = useQuery(PRODUCT);
-//   const { productId } = useParams();
-//   console.log(productId);
-//   if (loading) return <p>Loading...</p>;
-//   if (error) return <p>Error!</p>;
-//   return (
-//     <div>
-//       <span>{data.product.id}</span>
-//       <span>{data.product.name}</span>
-//       <span>{data.product.seoTitle}</span>
-//       <span>{data.product.variants.price.currency}</span>
-//       <img src={data.product.images[0].url} alt="lulu"></img>
-//     </div>
-//   );
-// };
-// export default ProductDetail;
+
 const ProductDetail = () => {
-  const { code } = useParams();
+  const { id } = useParams();
   const { loading, error, data } = useQuery(PRODUCT, {
-    variables: { code: code },
+    variables: { id: id },
   });
   console.log(data);
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error!</p>;
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <span>{data.country.name}</span>
-      <span>{data.country.phone}</span>
-      <span>{data.country.code}</span>
-      <span>{data.country.currency}</span>
-    </div>
+    <main
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          width: "500px",
+          border: "solid 1px lightgrey",
+          borderRadius: "10px",
+          padding: "20px",
+        }}
+      >
+        <img
+          style={{ width: "400px" }}
+          src={data.product.images[0].url}
+          alt="lulu"
+        ></img>
+        <span>{data.product.name}</span>
+        <span>발매일 : {data.product.publicationDate}</span>
+        <span>좋아요 : {data.product.favoriteCount}</span>
+      </div>
+    </main>
   );
 };
 export default ProductDetail;

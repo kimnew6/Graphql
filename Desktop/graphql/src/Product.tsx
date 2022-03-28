@@ -1,23 +1,18 @@
-// import React from "react";
-
-// const Product = ({ id, name, img }: any) => {
-//   return (
-//     <div key={id}>
-//       <p>{name}</p>
-//       <img style={{ width: "150px" }} src={img} alt="lulu" />
-//     </div>
-//   );
-// };
-
-// export default Product;
-
 import React from "react";
 
 const Product = ({ id, name, img }: any) => {
   return (
-    <div key={id}>
-      <p>{name}</p>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+      }}
+      key={id}
+    >
       <img style={{ width: "150px" }} src={img} alt="lulu" />
+      <p>{name}</p>
     </div>
   );
 };
