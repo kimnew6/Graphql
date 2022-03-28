@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
 import Product from "./Product";
@@ -22,23 +22,48 @@ const PRODUCT_LIST = gql`
     }
   }
 `;
-const ASC = (key) => {
-  return function (a, b) {
-    const x = parseInt(a[key]);
-    const y = parseInt(b[key]);
-
-    if (x < y) return -1;
-    if (x > y) return 1;
-    return 0;
-  };
-};
 
 const GetProductList = () => {
-  const [searchInput, setSearchInput] = useState("");
-  const { loading, error, data } = useQuery(PRODUCT_LIST);
+  const { loading, error, data } = useQuery(PRODUCT_LIST); // useLazyQuery
+  const navigate = useNavigate();
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [productData, setProductData] = useState<Array<{}>>([]);
   console.log(data);
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (data) {
+      setProductData(data.products.edges);
+    }
+  }, [data]);
+
+  const Asc = () => {
+    const arrayData = [...data.products.edges];
+    console.log(arrayData);
+    setProductData(arrayData);
+    return arrayData.sort((a, b): any => {
+      const upperCaseA = a.node.name.toUpperCase();
+      const upperCaseB = b.node.name.toUpperCase();
+
+      if (upperCaseA < upperCaseB) return 1;
+      if (upperCaseA > upperCaseB) return -1;
+      if (upperCaseA === upperCaseB) return 0;
+    });
+  };
+
+  const Desc = () => {
+    const arrayData = [...data.products.edges];
+    console.log(arrayData);
+    setProductData(arrayData);
+    return arrayData.sort((a, b): any => {
+      const upperCaseA = a.node.name.toUpperCase();
+      const upperCaseB = b.node.name.toUpperCase();
+
+      if (upperCaseA > upperCaseB) return 1;
+      if (upperCaseA < upperCaseB) return -1;
+      if (upperCaseA === upperCaseB) return 0;
+    });
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error!</p>;
   return (
@@ -51,7 +76,7 @@ const GetProductList = () => {
           fontSize: "80px",
         }}
       >
-        weprex
+        wiprex
       </div>
       <div
         style={{
@@ -62,39 +87,48 @@ const GetProductList = () => {
       >
         <TextField
           label="Search"
-          onChange={(e) => setSearchInput(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSearchInput(e.target.value)
+          }
         />
         <div style={{ position: "absolute", right: 10 }}>
-          <ArrowUpwardIcon></ArrowUpwardIcon>
-          <ArrowDownwardIcon></ArrowDownwardIcon>
+          <ArrowUpwardIcon
+            style={{ cursor: "pointer" }}
+            onClick={Asc}
+          ></ArrowUpwardIcon>
+          <ArrowDownwardIcon
+            style={{ cursor: "pointer" }}
+            onClick={Desc}
+          ></ArrowDownwardIcon>
         </div>
       </div>
       <div>
-        {data.products.edges
-          .filter((val: any) => {
-            if (searchInput === "") {
-              return val;
-            } else if (
-              val.node.name.toLowerCase().includes(searchInput.toLowerCase())
-            ) {
-              return val;
-            }
-          })
-          .map((product: any) => {
-            return (
-              <div
-                key={product.node.id}
-                style={{ display: "inline-block", margin: "20px" }}
-                onClick={() => navigate(`/product/${product.node.id}`)}
-              >
-                <Product
-                  id={product.node.id}
-                  name={product.node.name}
-                  img={product.node.images[0].url}
-                />
-              </div>
-            );
-          })}
+        {data &&
+          productData
+            .filter((val: any) => {
+              if (searchInput === "") {
+                return val;
+              } else if (
+                val.node.name.toLowerCase().includes(searchInput.toLowerCase())
+              ) {
+                return val;
+              }
+            })
+            .map((product: any) => {
+              return (
+                <div
+                  key={product.node.id}
+                  style={{ display: "inline-block", margin: "20px" }}
+                  onClick={() => navigate(`/product/${product.node.id}`)}
+                >
+                  <Product
+                    // id={product.node.id}
+                    name={product.node.name}
+                    img={product.node.images[0].url}
+                  />
+                </div>
+              );
+            })}
       </div>
     </>
   );
