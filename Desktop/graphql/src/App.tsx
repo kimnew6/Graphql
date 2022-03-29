@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { gql, useQuery, useLazyQuery } from "@apollo/client";
 import Product from "./Product";
@@ -46,10 +46,6 @@ const GetProductList = () => {
   const navigate = useNavigate();
   console.log(data);
 
-  const searchHandleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    getList({ variables: { filter: { searchV: e.target.value } } });
-  };
-
   useEffect(() => {
     getList();
     if (data) {
@@ -64,6 +60,23 @@ const GetProductList = () => {
   const nameDesc = () => {
     getList({ variables: { sortBy: { field: "NAME", direction: "DESC" } } });
   };
+
+  const debounce = (callback: any, delay: number) => {
+    let timer: any;
+    return (...args: any) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => callback(...args), delay);
+    };
+  };
+
+  const debounceHandle = useCallback(
+    debounce(
+      (e: React.ChangeEvent<HTMLInputElement>) =>
+        getList({ variables: { filter: { searchV: e.target.value } } }),
+      500
+    ),
+    []
+  );
 
   return (
     <>
@@ -84,7 +97,7 @@ const GetProductList = () => {
           alignItems: "center",
         }}
       >
-        <TextField label="Search" type="text" onChange={searchHandleInput} />
+        <TextField label="Search" type="text" onChange={debounceHandle} />
         <div style={{ position: "absolute", right: 10 }}>
           <ArrowUpwardIcon
             style={{ cursor: "pointer" }}
