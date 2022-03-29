@@ -1,6 +1,6 @@
 import React from "react";
 
-const Product = ({ id, name, img }: any) => {
+const Product = ({ name, img }: any) => {
   return (
     <div
       style={{
@@ -9,7 +9,6 @@ const Product = ({ id, name, img }: any) => {
         alignItems: "center",
         flexDirection: "column",
       }}
-      key={id}
     >
       <img style={{ width: "150px" }} src={img} alt="lulu" />
       <p>{name}</p>
