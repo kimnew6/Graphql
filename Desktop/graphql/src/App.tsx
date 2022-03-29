@@ -6,30 +6,33 @@ import Product from "./Product";
 import TextField from "@mui/material/TextField";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-
-// const PRODUCT_LIST = gql`
-//   query {
-//     products(first: 7) {
-//       edges {
-//         node {
-//           id
-//           name
-//           images {
-//             url
-//           }
-//         }
-//       }
-//     }
-//   }
-// `;
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const GetProductList = () => {
-  // const { loading, error, data } = useQuery(PRODUCT_LIST);
   const [searchInput, setSearchInput] = useState<string>("");
   const [productData, setProductData] = useState<Array<{}>>([]);
   const GETLIST = gql`
-    query ($filter: ProductFilterInput, $sortBy: ProductOrder) {
-      products(filter: $filter, sortBy: $sortBy, first: 13) {
+    query (
+      $filter: ProductFilterInput
+      $sortBy: ProductOrder
+      $first: Int
+      $last: Int
+      $after: String
+      $before: String
+    ) {
+      products(
+        filter: $filter
+        sortBy: $sortBy
+        first: $first
+        last: $last
+        after: $after
+        before: $before
+      ) {
+        pageInfo {
+          endCursor
+          startCursor
+        }
         edges {
           node {
             id
@@ -42,23 +45,27 @@ const GetProductList = () => {
       }
     }
   `;
+
   const [getList, { data }] = useLazyQuery(GETLIST);
   const navigate = useNavigate();
   console.log(data);
 
   useEffect(() => {
-    getList();
-    if (data) {
-      setProductData(data.products.edges);
-    }
+    getList({
+      variables: { first: "10", sortBy: { field: "NAME", direction: "ASC" } },
+    });
   }, []);
 
   const nameAsc = () => {
-    getList({ variables: { sortBy: { field: "NAME", direction: "ASC" } } });
+    getList({
+      variables: { first: "10", sortBy: { field: "NAME", direction: "ASC" } },
+    });
   };
 
   const nameDesc = () => {
-    getList({ variables: { sortBy: { field: "NAME", direction: "DESC" } } });
+    getList({
+      variables: { first: "10", sortBy: { field: "NAME", direction: "DESC" } },
+    });
   };
 
   const debounce = (callback: any, delay: number) => {
@@ -72,11 +79,30 @@ const GetProductList = () => {
   const debounceHandle = useCallback(
     debounce(
       (e: React.ChangeEvent<HTMLInputElement>) =>
-        getList({ variables: { filter: { searchV: e.target.value } } }),
+        getList({
+          variables: { first: "10", filter: { searchV: e.target.value } },
+        }),
       500
     ),
     []
   );
+
+  const moveToNext = () => {
+    getList({
+      variables: {
+        first: "10",
+        after: data.products.pageInfo.endcursor,
+      },
+    });
+  };
+  const moveToPrev = () => {
+    getList({
+      variables: {
+        last: "3",
+        before: data.products.pageInfo.startcursor,
+      },
+    });
+  };
 
   return (
     <>
@@ -109,18 +135,8 @@ const GetProductList = () => {
           ></ArrowDownwardIcon>
         </div>
       </div>
-      <div>
+      <div style={{ padding: "40px" }}>
         {data &&
-          // productData
-          // .filter((val: any) => {
-          //   if (searchInput === "") {
-          //     return val;
-          //   } else if (
-          //     val.node.name.toLowerCase().includes(searchInput.toLowerCase())
-          //   ) {
-          //     return val;
-          //   }
-          // })
           data.products.edges.map((product: any) => {
             return (
               <div
@@ -142,6 +158,19 @@ const GetProductList = () => {
               </div>
             );
           })}
+        <ArrowBackIosNewIcon
+          style={{ position: "fixed", top: "50%", left: 10, cursor: "pointer" }}
+          onClick={moveToNext}
+        ></ArrowBackIosNewIcon>
+        <ArrowForwardIosIcon
+          style={{
+            position: "fixed",
+            top: "50%",
+            right: 10,
+            cursor: "pointer",
+          }}
+          onClick={moveToPrev}
+        ></ArrowForwardIosIcon>
       </div>
     </>
   );
