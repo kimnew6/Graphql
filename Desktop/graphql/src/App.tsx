@@ -27,9 +27,9 @@ const GetProductList = () => {
   // const { loading, error, data } = useQuery(PRODUCT_LIST);
   const [searchInput, setSearchInput] = useState<string>("");
   const [productData, setProductData] = useState<Array<{}>>([]);
-  const SEARCH = gql`
-    query ($filter: ProductFilterInput) {
-      products(filter: $filter, first: 13) {
+  const GETLIST = gql`
+    query ($filter: ProductFilterInput, $sortBy: ProductOrder) {
+      products(filter: $filter, sortBy: $sortBy, first: 13) {
         edges {
           node {
             id
@@ -42,49 +42,28 @@ const GetProductList = () => {
       }
     }
   `;
-  const [search, { data }] = useLazyQuery(SEARCH);
+  const [getList, { data }] = useLazyQuery(GETLIST);
   const navigate = useNavigate();
   console.log(data);
 
   const searchHandleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    search({ variables: { filter: { searchV: e.target.value } } });
+    getList({ variables: { filter: { searchV: e.target.value } } });
   };
 
   useEffect(() => {
-    search();
+    getList();
     if (data) {
       setProductData(data.products.edges);
     }
   }, []);
 
-  // const Asc = () => {
-  //   const arrayData = [...data.products.edges];
-  //   console.log(arrayData);
-  //   setProductData(arrayData);
-  //   return arrayData.sort((a, b): any => {
-  //     const upperCaseA = a.node.name.toUpperCase();
-  //     const upperCaseB = b.node.name.toUpperCase();
+  const nameAsc = () => {
+    getList({ variables: { sortBy: { field: "NAME", direction: "ASC" } } });
+  };
 
-  //     if (upperCaseA < upperCaseB) return 1;
-  //     if (upperCaseA > upperCaseB) return -1;
-  //     if (upperCaseA === upperCaseB) return 0;
-  //   });
-  // };
-
-  // const Desc = () => {
-  //   const arrayData = [...data.products.edges];
-  //   console.log(arrayData);
-  //   setProductData(arrayData);
-  //   return arrayData.sort((a, b): any => {
-  //     const upperCaseA = a.node.name.toUpperCase();
-  //     const upperCaseB = b.node.name.toUpperCase();
-
-  //     if (upperCaseA > upperCaseB) return 1;
-  //     if (upperCaseA < upperCaseB) return -1;
-  //     if (upperCaseA === upperCaseB) return 0;
-  //   });
-  // };
+  const nameDesc = () => {
+    getList({ variables: { sortBy: { field: "NAME", direction: "DESC" } } });
+  };
 
   return (
     <>
@@ -109,11 +88,11 @@ const GetProductList = () => {
         <div style={{ position: "absolute", right: 10 }}>
           <ArrowUpwardIcon
             style={{ cursor: "pointer" }}
-            // onClick={Asc}
+            onClick={nameAsc}
           ></ArrowUpwardIcon>
           <ArrowDownwardIcon
             style={{ cursor: "pointer" }}
-            // onClick={Desc}
+            onClick={nameDesc}
           ></ArrowDownwardIcon>
         </div>
       </div>
@@ -131,20 +110,23 @@ const GetProductList = () => {
           // })
           data.products.edges.map((product: any) => {
             return (
-              <>
+              <div
+                key={product.node.id}
+                style={{
+                  cursor: "pointer",
+                  display: "inline-block",
+                  margin: "20px",
+                }}
+                onClick={() => navigate(`/product/${product.node.id}`)}
+              >
                 {product.node.images[0] && (
-                  <div
-                    style={{ display: "inline-block", margin: "20px" }}
-                    onClick={() => navigate(`/product/${product.node.id}`)}
-                  >
-                    <Product
-                      key={product.node.id}
-                      name={product.node.name}
-                      img={product.node.images[0].url}
-                    />
-                  </div>
+                  <Product
+                    key={product.node.id}
+                    name={product.node.name}
+                    img={product.node.images[0].url}
+                  />
                 )}
-              </>
+              </div>
             );
           })}
       </div>
