@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { gql, useQuery, useLazyQuery } from "@apollo/client";
+import { gql, useLazyQuery } from "@apollo/client";
 import Product from "./Product";
 
 import TextField from "@mui/material/TextField";

@@ -1,5 +1,3 @@
-import React from "react";
-
 const Product = ({ name, img }: any) => {
   return (
     <div
