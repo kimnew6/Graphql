@@ -10,8 +10,6 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const GetProductList = () => {
-  const [searchInput, setSearchInput] = useState<string>("");
-  const [productData, setProductData] = useState<Array<{}>>([]);
   const GETLIST = gql`
     query (
       $filter: ProductFilterInput
@@ -46,8 +44,9 @@ const GetProductList = () => {
     }
   `;
 
-  const [getList, { data }] = useLazyQuery(GETLIST);
   const navigate = useNavigate();
+
+  const [getList, { data }] = useLazyQuery(GETLIST);
   console.log(data);
 
   useEffect(() => {
@@ -68,7 +67,7 @@ const GetProductList = () => {
     });
   };
 
-  const debounce = (callback: any, delay: number) => {
+  const searchDebounce = (callback: any, delay: number) => {
     let timer: any;
     return (...args: any) => {
       clearTimeout(timer);
@@ -77,7 +76,7 @@ const GetProductList = () => {
   };
 
   const debounceHandle = useCallback(
-    debounce(
+    searchDebounce(
       (e: React.ChangeEvent<HTMLInputElement>) =>
         getList({
           variables: { first: "10", filter: { searchV: e.target.value } },
